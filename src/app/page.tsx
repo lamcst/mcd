@@ -15,7 +15,6 @@ function Home() {
         </BotsProvider>
       </PendingOrdersProvider>
     </CompletedOrderProvider>
-
   );
 }
 export default Home;

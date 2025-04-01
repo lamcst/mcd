@@ -8,17 +8,22 @@ const PendingOrdersContext = createContext<PendingOrder[] | null>(null);
 const PendingOrdersDispatchContext = createContext<React.Dispatch<PendingOrderAction> | null>(null);
 
 const initialOrders: PendingOrder[] = [];
-function ordersReducer(orders: PendingOrder[],
+/**
+ * A reducer to update the pending context
+ * @param orders 
+ * @param action 
+ * @returns Pending orders data
+ */
+function reducer(orders: PendingOrder[],
     action: PendingOrderAction
 ): PendingOrder[] {
-    
     const handlePriorityOrder = (priority: number): PendingOrder[] => {
-        if(!action.id){
+        if (!action.id) {
             console.error('action id not provided')
             return orders;
         }
         for (let i = 0; i < orders.length; i++) {
-            
+
             if (orders[i].priority > priority) {
                 return orders.toSpliced(i, 0, {
                     id: action.id,
@@ -27,8 +32,8 @@ function ordersReducer(orders: PendingOrder[],
                 });
             }
         }
-        return [ ...orders, {
-            id:action.id,
+        return [...orders, {
+            id: action.id,
             priority,
             status: 'PENDING',
         }];
@@ -36,7 +41,7 @@ function ordersReducer(orders: PendingOrder[],
     switch (action.type) {
         case 'added-normal': {
             const normalPriority = NORMAL_PRIORITY
-            if(!action.id){
+            if (!action.id) {
                 console.error('action id not provided')
                 return orders;
             }
@@ -72,7 +77,7 @@ function ordersReducer(orders: PendingOrder[],
             });
         }
         case 'deleted': {
-          return orders.filter(o => o.id !== action.id);
+            return orders.filter(o => o.id !== action.id);
         }
         default: {
             throw Error('Unknown action: ' + action.type);
@@ -80,9 +85,14 @@ function ordersReducer(orders: PendingOrder[],
     }
 }
 
+/**
+ * Pending Order Provider need to initiate on parent component to use usePendingOrders() and usePendingOrdersDispatch() on the component
+ * 
+ * @returns Pending Order Provider
+ */
 export function PendingOrdersProvider({ children }: { children: ReactNode }) {
     const [tasks, dispatch] = useReducer(
-        ordersReducer,
+        reducer,
         initialOrders
     );
 
@@ -95,16 +105,20 @@ export function PendingOrdersProvider({ children }: { children: ReactNode }) {
     );
 }
 
+/**
+ * 
+ * @returns Pending Orders data
+ */
 export function usePendingOrders() {
     return useContext(PendingOrdersContext);
 }
-
+/**
+ * To update pending context
+ * @returns Pending Order dispatch function
+ */
 export function usePendingOrdersDispatch() {
     return useContext(PendingOrdersDispatchContext);
 }
-
-
-
 
 export type PendingOrderAction = {
     type: 'added-normal' | 'added-vip' | 'deleted' | 'process' | 'pending';

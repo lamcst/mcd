@@ -7,14 +7,20 @@ const BotsDispatchContext = createContext<React.Dispatch<BotAction> | null>(null
 
 const initialBots: Bot[] = [];
 
+/**
+ * A reducer to update the bot context
+ * @param bots 
+ * @param action 
+ * @returns Bots data
+ */
 const reducer = (bots: Bot[], action: BotAction): Bot[] => {
     switch (action.type) {
         case 'added': {
-            if(!action.id){
+            if (!action.id) {
                 console.error('No id provided for bot');
                 return bots;
             }
-            
+
             return [...bots, {
                 id: action.id,
                 pendingOrderId: action.pendingOrderId ?? null,
@@ -24,11 +30,11 @@ const reducer = (bots: Bot[], action: BotAction): Bot[] => {
         }
         case 'idle': {
             const bot = bots.find((bot) => bot.id === action.id);
-            if(!bot) {
+            if (!bot) {
                 return bots;
             }
             return bots.map((b) => {
-                if(b.id === action.id) {
+                if (b.id === action.id) {
                     return {
                         ...b,
                         pendingOrderId: null,
@@ -41,15 +47,15 @@ const reducer = (bots: Bot[], action: BotAction): Bot[] => {
 
         case 'assign-pending-order': {
             const pendingOrderId = action.pendingOrderId
-            if(!pendingOrderId) {
+            if (!pendingOrderId) {
                 return bots;
             }
             const bot = bots.find((bot) => bot.id === action.id);
-            if(!bot) {
+            if (!bot) {
                 return bots;
             }
             return bots.map((b) => {
-                if(b.id === action.id) {
+                if (b.id === action.id) {
                     return {
                         ...b,
                         pendingOrderId,
@@ -62,15 +68,15 @@ const reducer = (bots: Bot[], action: BotAction): Bot[] => {
         }
         case 'start-idle': {
             const idleBot = bots.find((bot) => bot.status === 'IDLE');
-            if(!idleBot) {
+            if (!idleBot) {
                 return bots;
             }
-            if(!action.processFunction) {
-                console.warn('No process function provided for bot');
+            if (!action.processFunction) {
+                console.error('No process function provided for bot');
                 return bots;
             }
             return bots.map((b) => {
-                if(b.id === action.id && action.processFunction) {
+                if (b.id === action.id && action.processFunction) {
                     return {
                         ...b,
                         status: 'PROCESSING',
@@ -88,6 +94,11 @@ const reducer = (bots: Bot[], action: BotAction): Bot[] => {
             return bots;
     }
 };
+/**
+ * Bots Provider need to initiate on parent component to use useBots() and useBotsDispatch() on the component
+ * 
+ * @returns Bots Provider
+ */
 export function BotsProvider({ children }: { children: ReactNode }) {
     const [tasks, dispatch] = useReducer(
         reducer,
@@ -102,22 +113,31 @@ export function BotsProvider({ children }: { children: ReactNode }) {
         </BotsContext.Provider>
     );
 }
+/**
+ * 
+ * @returns Bots data
+ */
 export function useBots() {
     return useContext(BotsContext);
 }
-
+/**
+ * To update bot context
+ * @returns Bots dispatch function
+ */
 export function useBotsDispatch() {
     return useContext(BotsDispatchContext);
 }
-export type Bot ={
+
+export type Bot = {
     id: number;
     status: 'IDLE' | 'PROCESSING';
     pendingOrderId: string | null;
     processFunction: ReturnType<typeof setTimeout> | undefined;
 }
+
 export type BotAction = {
     id?: number;
     pendingOrderId?: string;
     processFunction?: ReturnType<typeof setTimeout>;
-    type: 'added' | 'idle'  | 'deleted' | 'assign-pending-order' | 'start-idle';
+    type: 'added' | 'idle' | 'deleted' | 'assign-pending-order' | 'start-idle';
 }
