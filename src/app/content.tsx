@@ -17,7 +17,7 @@ export default function Content() {
     const completedOrders = useMemo(() => { return completedOrdersFromContext ? [...completedOrdersFromContext] : [] }, [completedOrdersFromContext]);
     const dispatchPendingOrder = usePendingOrdersDispatch();
     const dispatchBots = useBotsDispatch()
-    const completedOrderDispatch = useCompletedOrdersDispatch()
+    const dispatchCompletedOrder = useCompletedOrdersDispatch()
 
     if (!dispatchPendingOrder) {
         throw new Error('Dispatch pending function is null');
@@ -25,7 +25,7 @@ export default function Content() {
     if (!dispatchBots) {
         throw new Error('Dispatch bots is null')
     }
-    if (!completedOrderDispatch) {
+    if (!dispatchCompletedOrder) {
         throw new Error('Dispatch completed function is null')
     }
 
@@ -41,7 +41,7 @@ export default function Content() {
             if (pendingOrder) {
                 const timerFunction = setTimeout(() => {
                     dispatchPendingOrder({ type: 'deleted', id: pendingOrder.id });
-                    completedOrderDispatch({ type: 'added', pendingOrderId: pendingOrder.id });
+                    dispatchCompletedOrder({ type: 'added', pendingOrderId: pendingOrder.id });
                     dispatchBots({ type: 'idle', id: bot.id });
                 }, 10 * 1000)
                 dispatchBots({
@@ -52,8 +52,7 @@ export default function Content() {
                 dispatchPendingOrder({ type: 'process', id: pendingOrder.id });
             }
         });
-
-    }, [bots, pendingOrders, completedOrderDispatch, dispatchBots, dispatchPendingOrder]);
+    }, [bots, pendingOrders, dispatchCompletedOrder, dispatchBots, dispatchPendingOrder]);
     const newNormalOrder = () => {
         dispatchPendingOrder({ type: 'added-normal', id: GET_NORMAL_ID() });
     }
@@ -98,7 +97,7 @@ export default function Content() {
                 <button onClick={removeBot}>- Bot</button>
             </div>
             <div style={{ width: '100%', flexDirection: 'row', display: 'flex', gap: '20px' }}>
-                <div>
+                <div style={{ width: '100%', }}>
                     <h3>PENDING</h3>
                     {
                         pendingOrders.length === 0 && (
@@ -134,7 +133,7 @@ export default function Content() {
                         )
                     }
                 </div>
-                <div>
+                <div style={{ width: '100%', }}>
                     <h3>BOT</h3>
                     {
                         bots.length === 0 && (
@@ -151,8 +150,8 @@ export default function Content() {
                             <table style={{ width: '100%' }}>
                                 <thead>
                                     <tr>
-                                        <th>Bot Id</th>
-                                        <th>Pending Order Number</th>
+                                        <th>Id</th>
+                                        <th>Pending Order No.</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -170,10 +169,10 @@ export default function Content() {
                         )
                     }
                 </div>
-                <div>
+                <div style={{ width: '100%', }}>
                     <h3>COMPLETED</h3>
                     {
-                        completedOrders && completedOrders.length === 0 && (
+                        completedOrders.length === 0 && (
                             <p>No completed orders found.</p>
                         )
                     }

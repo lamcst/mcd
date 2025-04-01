@@ -4,9 +4,7 @@ import { CompletedOrderProvider } from "@/context/completedOrder";
 import { BotsProvider } from "@/context/bot";
 import Content from "./content";
 
-
 function Home() {
-  
   return (
     <CompletedOrderProvider>
       <PendingOrdersProvider>

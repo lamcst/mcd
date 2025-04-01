@@ -66,27 +66,7 @@ const reducer = (bots: Bot[], action: BotAction): Bot[] => {
                 return b;
             });
         }
-        case 'start-idle': {
-            const idleBot = bots.find((bot) => bot.status === 'IDLE');
-            if (!idleBot) {
-                return bots;
-            }
-            if (!action.processFunction) {
-                console.error('No process function provided for bot');
-                return bots;
-            }
-            return bots.map((b) => {
-                if (b.id === action.id && action.processFunction) {
-                    return {
-                        ...b,
-                        status: 'PROCESSING',
-                        pendingOrderId: action.pendingOrderId ?? null,
-                        processFunction: action.processFunction,
-                    };
-                }
-                return b;
-            });
-        }
+
         case 'deleted': {
             return bots.filter((bot) => bot.id !== action.id);
         }
@@ -139,5 +119,5 @@ export type BotAction = {
     id?: number;
     pendingOrderId?: string;
     processFunction?: ReturnType<typeof setTimeout>;
-    type: 'added' | 'idle' | 'deleted' | 'assign-pending-order' | 'start-idle';
+    type: 'added' | 'idle' | 'deleted' | 'assign-pending-order';
 }
